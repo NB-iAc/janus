@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="25dp"
+    android:padding="16dp"
+    android:radius="10dp"
+    android:background="@drawable/dialog_background">
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Building Information"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/glacialindifference_bold"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/black"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="12dp">
+        <TextView
+            android:id="@+id/building_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:fontFamily="@font/glacialindifference_regular"/>
+    </ScrollView>
+    <Button
+        android:id="@+id/close_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/green_rounder_bg"/>
+</LinearLayout>

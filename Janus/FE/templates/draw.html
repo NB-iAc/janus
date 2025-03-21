@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Janus - Floor Plan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/draw.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/api-client.css') }}">
+    <style>.warning-message {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+    .loading-indicator {
+        padding: 10px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
+        #metadataForm {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fafdf4;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 400px;
+        }
+        #metadataForm input, #metadataForm select, #metadataForm textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+            background-color: white;
+            color: black; 
+            border: 1px solid #ccc; 
+            padding: 8px;
+            border-radius: 4px; 
+            font-family: Arial, sans-serif; 
+        }
+        #metadataForm button {
+            padding: 10px 20px;
+            background: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #metadataForm h3,
+        #metadataForm label {
+            background-color: transparent;
+        }
+        #metadataForm button{
+            border: none; 
+            background: none
+        }
+        #metadataForm button img {
+            width: 150px; 
+            height: 40px; 
+        }
+        #utilityFields, #elevationFields {
+            display: none;
+        }
+        .pan-cursor {
+            cursor: grab;
+        }
+        .pan-cursor:active {
+            cursor: grabbing;
+        }
+        button {
+            position: relative;
+        }
+        button .tooltip {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .elevation-menu {
+            display: none;
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 350px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .elevation-menu h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .elevation-section {
+            margin-bottom: 20px;
+        }
+        .elevation-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .elevation-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .elevation-item:last-child {
+            border-bottom: none;
+        }
+        .elevation-item.selected {
+            background-color: #e6f7ff;
+        }
+        .elevation-menu-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .elevation-menu-buttons button {
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <button id="backButton">
+        <img src="static/images/back-button.png" alt="Back to Homepage" style="width: 50px; height: auto;">
+      </button>
+    <h1>Floor Plan Layout</h1>
+    <div class="modeButtons"> 
+        <label for="floorSelect">Select Floor:</label>
+        <select id="floorSelect"></select>
+        <button id="renameFloorButton">
+            <img src="static/images/rename.png" alt="rename floor" width="30" height="30">
+            <span class="tooltip">Rename Floor</span>
+        </button>
+        <button id="addFloorButton">
+            <img src="static/images/addfloor.png" alt="add floor" width="30" height="30">
+            <span class="tooltip">Add Floor</span>
+        </button>
+        <button id="pointerModeButton">
+            <img src="static/images/pointer.png" alt="pointer" width="30" height="30">
+            <span class="tooltip">Pointer Mode</span>
+        </button>
+        <button id="panModeButton">
+            <img src="static/images/pan.png" alt="pan" width="30" height="30">
+            <span class="tooltip">Pan Canvas</span>
+        </button>
+        <button id="lineModeButton">
+            <img src="static/images/line.png" alt="line" width="30" height="30">    
+            <span class="tooltip">Line Mode</span>
+        </button>
+        <button id="squareModeButton">
+            <img src="static/images/square.png" alt="square" width="30" height="30">
+            <span class="tooltip">Square Mode</span>
+        </button>
+        <button id="undoButton">
+            <img src="static/images/undo.png" alt="undo" width="30" height="30">
+            <span class="tooltip">Undo</span>
+        </button>
+        <button id="redoButton">
+            <img src="static/images/redo.png" alt="redo" width="30" height="30">
+            <span class="tooltip">Redo</span>
+        </button>
+        <button id="connectionModeButton">
+            <img src="static/images/connection.png" alt="connection" width="30" height="30">
+            <span class="tooltip">Connection Mode </span>
+        </button>
+        <button id="clearFloorButton">
+            <img src="static/images/trash.png" alt="clear floor" width="30" height="30">
+            <span class="tooltip">Clear Floor</span>
+        </button>
+        <button id="connectElevationsButton">
+            <img src="static/images/elevator.png" alt="connect elevations" width="30" height="30">
+            <span class="tooltip">Connect Elevations</span>
+        </button>
+        <button id="exportPDFButton">
+            <img src="static/images/pdf-export.png" alt="Export PDF" width="30" height="30">
+        </button>
+    </div>
+<div id="elevationConnectionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Connect Elevations Across Floors</h3>
+            <span id="closeElevationConnectionModal" class="close-button">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="warning-message">
+                <strong>⚠️ Reminder:</strong> Save your work before connecting elevations to ensure all your changes are preserved!
+            </div>
+            <div class="connection-section">
+                <h4>Source</h4>
+                <div class="form-group">
+                    <label for="sourceFloorDropdown">Floor:</label>
+                    <select id="sourceFloorDropdown" class="floor-dropdown"></select>
+                </div>
+                <div class="form-group">
+                    <label for="sourceRoomDropdown">Elevation:</label>
+                    <select id="sourceRoomDropdown" class="room-dropdown"></select>
+                </div>
+            </div>
+            <div class="connection-section">
+                <h4>Target</h4>
+                <div class="form-group">
+                    <label for="targetFloorDropdown">Floor:</label>
+                    <select id="targetFloorDropdown" class="floor-dropdown"></select>
+                </div>
+                <div class="form-group">
+                    <label for="targetRoomDropdown">Elevation:</label>
+                    <select id="targetRoomDropdown" class="room-dropdown"></select>
+                </div>
+            </div>
+            <div id="connectionStatusMessage" class="status-message info">
+                Select both source and target elevations to connect
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="refreshElevationListsButton" class="secondary-button">
+                Refresh Lists
+            </button>
+            <button id="connectElevationsConfirmButton" class="primary-button">
+                Connect
+            </button>
+            <button id="closeElevationConnectionModal" class="cancel-button">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    <div class="button-container">
+        <button id="saveButton">
+            <img src="static/images/save.png" alt="savefloorplan">
+        </button>
+    </div>
+    <div id="metadataForm">
+        <h3>Room Details</h3>
+        <label for="roomName">Room Name:</label>
+        <input type="text" id="roomName" placeholder="Enter room name" required>
+        <label for="category">Category:</label>
+        <select id="category" required>
+            <option value="room">Room</option>
+            <option value="utility">Utility</option>
+            <option value="elevation">Elevation</option>
+            <option value="building">Building</option>
+            <option value="wall">Miscellaneous</option>
+        </select>
+        <label for="roomCategory">Room Category:</label>
+        <input type="text" id="roomCategory" placeholder="Enter Room Category Here " required>
+        <div id="utilityFields">
+            <label for="utilityType">Utility Type:</label>
+            <input type="text" id="utilityType" placeholder="Enter utility type" required>
+        </div>
+        <div id="elevationFields">
+            <label for="elevationType">Elevation Type:</label>
+            <select id="elevationType" required>
+                <option value="elevator">Elevator</option>
+                <option value="escalator">Escalator</option>
+                <option value="stairs">Stairs</option>
+            </select>
+        </div>
+        <label for="description">Description:</label>
+        <textarea id="description" placeholder="Enter description" required></textarea>
+        <label for="owner">Owner:</label>
+        <input type="text" id="owner" placeholder="Enter owner name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter email" required>
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" placeholder="Enter phone number" required>
+        <button id="saveMetadata">
+            <img src="{{ url_for('static', filename='images/savemetadata.png') }}" alt="save" />
+        </button>
+        <button id="cancelMetadata">
+            <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel" />
+        </button>
+    </div>
+    <script>
+    </script>
+<script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
+<script src="{{ url_for('static', filename='js/floor-plan-transformer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/floor-plan-models.js') }}"></script>
+<script src="{{ url_for('static', filename='js/newdraw.js') }}"></script>
+    <div id="elevationMenu" class="elevation-menu">
+        <h3>Connect Elevations Across Floors</h3>
+        <div class="warning-message">
+            <strong>⚠️ Reminder:</strong> Save your work before attempting to connect elevation nodes from different floors!
+        </div>
+        <div class="elevation-section">
+            <h4>Source Elevation</h4>
+            <label for="sourceFloorSelect">Floor:</label>
+            <select id="sourceFloorSelect" class="floor-dropdown"></select>
+            <div id="sourceElevationList" class="elevation-list">
+                <div class="loading-indicator">Loading elevations...</div>
+            </div>
+        </div>
+        <div class="elevation-section">
+            <h4>Target Elevation</h4>
+            <label for="targetFloorSelect">Floor:</label>
+            <select id="targetFloorSelect" class="floor-dropdown"></select>
+            <div id="targetElevationList" class="elevation-list">
+                <div class="loading-indicator">Loading elevations...</div>
+            </div>
+        </div>
+        <div class="elevation-menu-buttons">
+            <button id="connectElevationsConfirm">Connect</button>
+            <button id="closeElevationMenu">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>

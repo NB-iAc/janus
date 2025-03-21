@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#9FB4B7"
+    android:layout_gravity="center"
+    android:padding="16dp">
+    <FrameLayout
+        android:id="@+id/logoContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp">
+        <ImageView
+            android:id="@+id/logoShadow"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginTop="3dp"
+            android:src="@drawable/janus_logo"
+            android:alpha="0.4"
+            app:tint="#000000"
+            android:contentDescription="@string/app_logo" />
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/janus_logo"
+            android:contentDescription="@string/app_logo" />
+    </FrameLayout>
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/glacialindifference_bold"
+        android:letterSpacing="0.1"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/logoContainer"
+        android:text="JANUS"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/tagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/appName"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/glacialindifference_regular"
+        android:letterSpacing="0.5"
+        android:layout_marginTop="8dp"
+        android:text="YOUR GUIDE WITHIN"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        android:textColor="#333333" />
+    <RelativeLayout
+        android:id="@+id/searchBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@+id/tagline"
+        android:layout_marginTop="35dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/search_bar_bg"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        <ImageView
+            android:id="@+id/searchIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/search_icon"
+            android:contentDescription="Search icon" />
+        <AutoCompleteTextView
+            android:id="@+id/search_mall"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toEndOf="@+id/searchIcon"
+            android:layout_marginStart="8dp"
+            android:background="@null"
+            android:hint="WHICH BUILDING ARE YOU IN?"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:textColor="#333333"
+            android:textColorHint="#777777"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:padding="8dp" />
+    </RelativeLayout>
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:visibility="gone" />
+</RelativeLayout>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - JANUS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/api-client.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="section login-section">
+            <h2>Already have an account?</h2>
+            <h3>Return to Login Now!</h3>
+            <button type="button" class="login" onclick="window.location.href='{{ url_for('home') }}'">
+                <img src="{{ url_for('static', filename='images/login_button.png') }}" alt="Login" />
+            </button>
+            <h4 class="google signup-title">Sign In with</h4>
+            <button type="button" class="google" onclick="window.location.href='{{ url_for('google_login') }}'">
+                <img src="{{ url_for('static', filename='images/google.png') }}" alt="google" />
+            </button>
+        </div>
+        <div class="section signup-section">
+            <img src="{{ url_for('static', filename='images/janus.png') }}" alt="Janus" class="janus_img" />
+            <h2 class="title">JANUS</h2>
+            <h3 class="subtitle">YOUR GUIDE WITHIN</h3>
+            <form method="POST" action="{{ url_for('signup') }}">
+                <input type="text" id="name" name="name" placeholder="Full Name" required>
+                <input type="email" id="email" name="email" placeholder="Email" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                <button type="submit" class="login">
+                    <img src="{{ url_for('static', filename='images/signup_button.png') }}" alt="Sign Up" />
+                </button>
+            </form>
+            {% if message %}
+            <p class="message">{{ message }}</p>
+            {% endif %}
+            <h4 class="google signin-title">Sign Up with</h4>
+            <button type="button" class="google" onclick="window.location.href='{{ url_for('google_login') }}'">
+                <img src="{{ url_for('static', filename='images/google.png') }}" alt="google" />
+            </button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='floor-plan-models.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-models.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/check_session')
+          .then(response => response.json())
+          .then(data => {
+            if (data.logged_in) {
+              window.location.href = '/admin_homepage';
+            }
+          })
+          .catch(error => {
+            console.error('Error checking session:', error);
+          });
+      });
+    </script>
+</body>
+</html>

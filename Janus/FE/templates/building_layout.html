@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Janus - Add Building</title>
+    <link rel="stylesheet" href="static/css/draw.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/api-client.css') }}">
+</head>
+<body>
+    <h1>Building Layout</h1>
+    <button id="lineModeButton">Line Mode</button>
+    <button id="squareModeButton">Square Mode</button>
+    <button id="undoButton">Undo</button>
+    <button id="redoButton">Redo</button>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    <button id="saveButton">Save Building Shape</button>
+    <pre id="output"></pre>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const buildingId = urlParams.get("building_id");
+        const canvas = document.getElementById("drawingCanvas");
+        const ctx = canvas.getContext("2d");
+        const outputElement = document.getElementById("output");
+        let isDrawing = false;
+        let buildingShape = [];  
+        let undoStack = [];  
+        let redoStack = []; 
+        let startPoint = null;
+        let currentShape = null;
+        let drawingMode = "line";
+        const gridSize = 40; 
+        const gridColor = "#d3d3d3"; 
+        function snapToGrid(value) {
+            return Math.round(value / gridSize) * gridSize;
+        }
+        function drawGrid() {
+            ctx.beginPath();
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+            }
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+            }
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        function redrawCanvas() {
+            clearCanvas();
+            drawGrid();
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 2;
+            buildingShape.forEach(shape => {
+                ctx.beginPath();
+                if (shape.type === "line") {
+                    ctx.moveTo(shape.start.x, shape.start.y);
+                    ctx.lineTo(shape.end.x, shape.end.y);
+                } else if (shape.type === "square") {
+                    ctx.rect(shape.start.x, shape.start.y, shape.width, shape.height);
+                }
+                ctx.stroke();
+            });
+        }
+        canvas.addEventListener("mousedown", (e) => {
+            isDrawing = true;
+            startPoint = { x: snapToGrid(e.offsetX), y: snapToGrid(e.offsetY) };
+            currentShape = { type: drawingMode, start: startPoint };
+        });
+        canvas.addEventListener("mousemove", (e) => {
+            if (!isDrawing) return;
+            const endPoint = { x: snapToGrid(e.offsetX), y: snapToGrid(e.offsetY) };
+            currentShape.end = endPoint;
+            if (drawingMode === "square") {
+                currentShape.width = endPoint.x - startPoint.x;
+                currentShape.height = endPoint.y - startPoint.y;
+            }
+            redrawCanvas();
+            previewCurrentShape();
+        });
+        canvas.addEventListener("mouseup", () => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            undoStack.push([...buildingShape]);
+            redoStack = [];
+            buildingShape.push(currentShape);
+            redrawCanvas();
+            updateOutput();
+        });
+        function previewCurrentShape() {
+            ctx.save();
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            if (currentShape.type === "line") {
+                ctx.moveTo(currentShape.start.x, currentShape.start.y);
+                ctx.lineTo(currentShape.end.x, currentShape.end.y);
+            } else if (currentShape.type === "square") {
+                ctx.rect(currentShape.start.x, currentShape.start.y, currentShape.width, currentShape.height);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        document.getElementById("lineModeButton").addEventListener("click", () => {
+            drawingMode = "line";
+        });
+        document.getElementById("squareModeButton").addEventListener("click", () => {
+            drawingMode = "square";
+        });
+        document.getElementById("undoButton").addEventListener("click", () => {
+            if (undoStack.length > 0) {
+                redoStack.push([...buildingShape]);
+                buildingShape = undoStack.pop();
+                redrawCanvas();
+                updateOutput();
+            }
+        });
+        document.getElementById("redoButton").addEventListener("click", () => {
+            if (redoStack.length > 0) {
+                undoStack.push([...buildingShape]);
+                buildingShape = redoStack.pop();
+                redrawCanvas();
+                updateOutput();
+            }
+        });
+        document.getElementById("saveButton").addEventListener("click", () => {
+            const buildingName = prompt("Enter Building Name:");
+            const floors = prompt("Enter Number of Floors:");
+            const buildingDescription = prompt("Enter Building Description:");
+            if (!buildingName || !floors || isNaN(floors) || floors <= 0) {
+                alert("Invalid building details.");
+                return;
+            }
+            showLoading(true);
+            apiClient.saveBuildingShape({
+                building_name: buildingName,
+                floors: parseInt(floors),
+                shape: buildingShape,
+                building_description: buildingDescription
+            })
+            .then(data => {
+                showLoading(false);
+                if (data && data.message) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.href = "/admin";
+                    }
+                }
+            })
+            .catch(err => {
+                showLoading(false);
+                alert("Error saving building shape. Please try again.");
+            });
+        });
+        drawGrid();
+        function saveShape() {
+        const shapeData = getShapeData(); 
+        fetch('/save_building_shape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ building_id: selectedBuildingId, shape: shapeData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Shape saved successfully!');
+                window.location.href = `/draw?building_id=${selectedBuildingId}`;
+            }
+        })
+        .catch(error => 
+    }
+    </script>
+    <script src="{{ url_for('static', filename='floor-plan-models.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-models.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <Button
+            android:id="@+id/buttonFloor1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Floor 1" />
+        <Button
+            android:id="@+id/buttonFloor2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Floor 2" />
+    </LinearLayout>
+    <com.example.janus.map.CustomMapView
+        android:id="@+id/customMapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

@@ -1,0 +1,219 @@
+@font-face {
+    font-family: "GI_bold";
+    src: 
+         url("/static/fonts/GlacialIndifference-Bold.otf") format("opentype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "GI_regular";
+    src: 
+         url("/static/fonts/GlacialIndifference-Regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "GI_italic";
+    src: 
+         url("/static/fonts/GlacialIndifference-Italic.otf") format("opentype");
+    font-weight: normal;
+    font-style: italic;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100%; 
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%; 
+}
+
+.login-section .title {
+    font-family: "GI_bold", sans-serif; 
+    font-weight: bold; 
+    font-size: 2rem; 
+    letter-spacing: 2px; 
+}
+
+.login-section .subtitle {
+    font-family: "GI_regular", sans-serif;
+    font-weight: normal; 
+    font-size: 1rem; 
+    letter-spacing: 1px;
+    color: #383838;
+}
+
+.login-section {
+    padding-top: 100px;
+    background-color: #9cc3c3;
+    flex: 0 0 40%; 
+    order: 1; 
+    font: "GI_bold", sans-serif;
+}
+
+.forgot-password-btn {
+    font-size: 1rem;
+    color: #3C3D37;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.forgot-password-wrapper {
+    display: flex;
+    justify-content: flex-end; 
+    width: 100%; 
+}
+
+.signup-section {
+    background-color: #fafdf4;
+    flex: 0 0 60%; 
+    order: 2; 
+}
+
+.signup-section h2 {
+    font-size: 2rem;
+    font-family: "GI_bold", sans-serif;
+}
+
+.signup-section h3 {
+    font-size: 1rem;
+    font-family: "GI_regular", sans-serif;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+}
+
+.google.signup-title, .google.signin-title {
+    color: #333;
+}
+
+.google img {
+    border: none;
+    min-width: 25px;
+    max-width: 50px;
+    height: auto; 
+    padding-top: 10px;
+}
+
+button.google {
+    border: none; 
+    background: transparent; 
+    padding: 0; 
+}
+
+h2, h3 {
+    margin-bottom: 15px;
+}
+
+form {
+    width: 100%;
+    max-width: 300px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: 1px solid #ccc;
+}
+
+button.login,
+button.signup {
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 100%; 
+    height: auto; 
+}
+
+button.login img,
+button.signup img {
+    max-width: 150px; 
+    max-height: 150px;
+    width: auto; 
+    height: auto; 
+    display: block; 
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; 
+        height: auto; 
+        overflow-y: auto;
+    }
+
+    .login-section {
+        flex: 0 0 auto;
+        width: 100%; 
+        height: 100vh; 
+    }
+
+    .signup-section {
+        flex: 0 0 auto;
+        width: 100%;
+        height: auto; 
+    }
+
+    button img {
+        max-width: 100px;
+    }
+
+    .forgot-password-wrapper {
+        justify-content: flex-start; 
+    }
+}
+
+@media (max-width: 480px) {
+    h2, h3 {
+        font-size: 16px;
+    }
+
+    button img {
+        max-width: 90px;
+    }
+
+    .login-section {
+        flex: 0 0 auto;
+        width: 100%; 
+        height: 100vh; 
+    }
+
+    .signup-section {
+        flex: 0 0 auto;
+        width: 100%; 
+        height: auto; 
+    }
+    button img {
+        max-width: 90px;
+    }
+}

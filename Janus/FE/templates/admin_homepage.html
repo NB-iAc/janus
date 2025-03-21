@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Janus - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_homepage_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/api-client.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <ul>
+            <li><button data-section="home" class="nav-button">HOME<img src="{{ url_for('static', filename='images/home.png') }}" alt="home icon"></button></li>
+            <li><button data-section="buildings" class="nav-button">BUILDINGS<img src="{{ url_for('static', filename='images/building.png') }}" alt="building icon"></button></li>
+            <li><button data-section="rooms" class="nav-button">ROOMS<img src="{{ url_for('static', filename='images/rooms.png') }}" alt="room icon"></button></li>
+            <li><button data-section="access-management" class="nav-button">ACCESS MANAGEMENT<img src="{{ url_for('static', filename='images/access_management.png') }}" alt="access management icon"></button></li>
+        </ul>
+    </div>
+    <div class="topbar">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/janus.png') }}" class="Janus_img">
+            <h1 class="Janus_title">JANUS</h1>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="globalSearch" placeholder="Search buildings">
+            <button id="globalSearchButton">
+                <img src="{{ url_for('static', filename='images/search.png') }}" alt="search icon">
+            </button>
+            <div id="globalSearchResults" class="search-results"></div>
+        </div>
+        <img class="logout-img" src="{{ url_for('static', filename='images/logout_button.png') }}" alt="Logout" id="logoutButton" style="cursor: pointer;" />
+    </div>
+    <div id="buildingLogsModal" class="modal">
+        <div class="modal-content">
+            <div class="logs-modal-header">
+                <h2 id="buildingLogsTitle">Building Logs</h2>
+            </div>
+            <div id="buildingLogsContent" class="logs-content">
+                <div class="loading-indicator">Loading logs...</div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" id="closeBuildingLogsModal">
+                    <img src="{{ url_for('static', filename='images/close.png') }}" alt="close" class="button-icon">
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <div id="buildingEditModal" class="modal">
+    <div class="modal-content">
+        <h2>Edit Building Details</h2>
+        <form id="buildingEditForm">
+            <input type="hidden" id="editBuildingId">
+            <div class="form-group">
+                <label for="editBuildingName">Building Name:</label>
+                <input type="text" id="editBuildingName" required>
+            </div>
+            <div class="form-group">
+                <label for="editBuildingDescription">Description:</label>
+                <textarea id="editBuildingDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="editBuildingFloors">Number of Floors:</label>
+                <input type="number" id="editBuildingFloors" min="1" required>
+            </div>
+            <div class="form-buttons">
+                <button type="button" onclick="closeBuildingEditModal()">
+                    <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel" class="button-icon">
+                </button>
+                <button type="submit">
+                    <img src="{{ url_for('static', filename='images/save_green.png') }}" alt="save" class="button-icon">
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    <div id="buildingEditModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Building Details</h2>
+            <form id="buildingEditForm">
+                <input type="hidden" id="editBuildingId">
+                <div class="form-group">
+                    <label for="editBuildingName">Building Name:</label>
+                    <input type="text" id="editBuildingName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editBuildingDescription">Description:</label>
+                    <textarea id="editBuildingDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editBuildingFloors">Number of Floors:</label>
+                    <input type="number" id="editBuildingFloors" min="1" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" onclick="closeBuildingEditModal()">
+                        <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel"
+                            class="button-icon">
+                    </button>
+                    <button type="submit">
+                        <img src="{{ url_for('static', filename='images/save.png') }}" alt="save" class="button-icon">
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="requestAccessModal" class="modal">
+        <div class="modal-content">
+            <h2>Request Building Access</h2>
+            <div class="search-container">
+                <input type="text" id="buildingSearchInput" placeholder="Search buildings"
+                    onkeyup="filterBuildingsInModal()" class="request-search">
+            </div>
+            <div id="buildingsList" class="buildings-list">
+                <div class="loading">Loading buildings...</div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" onclick="closeRequestAccessModal()">
+                    <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel" />
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="buildingDetailsModal" class="modal">
+        <div class="modal-content">
+            <h2 id="detailsBuildingName">Building Name</h2>
+            <div id="buildingDetailsContent">
+                <p id="buildingdetailsdescription">Description will appear here</p>
+                <div id="buildingAdminInfo">
+                    <h3>Building Administrators</h3>
+                    <ul id="adminsList">
+                    </ul>
+                </div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" onclick="closeBuildingDetailsModal()">
+                    <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel" />
+                </button>
+                <button type="button" id="confirmRequestAccessBtn" onclick="confirmRequestAccess()">
+                    <img src="{{ url_for('static', filename='images/access.png') }}" alt="cancel" />
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="buildingModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Building</h2>
+            <form id="buildingForm">
+                <div class="form-group">
+                    <label for="buildingName">Building Name:</label>
+                    <input type="text" id="buildingName" required>
+                </div>
+                <div class="form-group">
+                    <label for="floors">Number of Floors:</label>
+                    <input type="number" id="floors" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="buildingDescription">Description:</label>
+                    <textarea id="buildingDescription" rows="3"></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" id="closeModal">
+                        <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel" />
+                    </button>
+                    <button type="submit">
+                        <img src="{{ url_for('static', filename='images/create.png') }}" alt="create" />
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="buildingRoomsModal" class="modal">
+        <div class="modal-content">
+            <h2 id="buildingRoomsTitle">Rooms in Building</h2>
+            <div id="buildingRoomsList" class="rooms-list">
+                <div class="loading">Loading rooms...</div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" id="closeBuildingRoomsModal">
+                    <img src="{{ url_for('static', filename='images/cancel.png') }}" alt="cancel" />
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="adminContactsModal" class="modal">
+        <div class="modal-content">
+            <div class="admin-contacts-modal-header">
+                <h2>Building Administrators</h2>
+                <h3 id="adminContactsBuildingName">Building Name</h3>
+            </div>
+            <div id="adminContactsList">
+                <div class="loading-indicator">Loading administrator information...</div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" id="closeAdminContactsModal">
+                    <img src="{{ url_for('static', filename='images/close.png') }}" alt="close" class="button-icon">
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="main">
+        <div id="home" class="content active">
+            <div class="image-container">
+                <div class="bordered-container">
+                    <img src="static/images/home.png" alt="Home Image" class="bordered-image">
+                </div>
+                <h1>HOME</h1>
+            </div>
+            <h2>Janus: Your Guide Within; An Interior Navigation System</h2>
+            <p>
+                Welcome to Janus, a comprehensive indoor navigation solution designed to improve the navigation
+                experience within buildings. In today’s complex urban environments, such as shopping malls,
+                airports, and hospitals, finding your way around can often be a time-consuming and frustrating task.
+                Our system aims to streamline this process by providing an intuitive and efficient navigation tool
+                for both building administrators and their clientele.
+                Through our web application, building owners can easily map and customize the layout of their
+                spaces, including stores, services, and key points of interest. This ensures that all relevant
+                information is accurately represented and up-to-date. For visitors, our mobile application offers an
+                easy-to-use platform to navigate the building, providing real-time directions and detailed
+                information about the layout, making it easier to reach any destination within the facility.
+                Our goal is to enhance customer satisfaction by providing an advanced navigation system that reduces
+                confusion and improves the overall experience within large and complex buildings. Explore our
+                platform today to discover how we can help you transform your facility’s navigation process.
+            </p>
+            <div class="quick-navigation-cards">
+                <div class="nav-card" data-section="buildings">
+                    <img src="{{ url_for('static', filename='images/building.png') }}" alt="Buildings Icon">
+                    <h3>Buildings</h3>
+                    <p>Manage and view all buildings in the system.</p>
+                </div>
+                <div class="nav-card" data-section="rooms">
+                    <img src="{{ url_for('static', filename='images/rooms.png') }}" alt="Rooms Icon">
+                    <h3>Rooms</h3>
+                    <p>Explore and manage rooms within buildings.</p>
+                </div>
+                <div class="nav-card" data-section="access-management">
+                    <img src="{{ url_for('static', filename='images/access_management.png') }}" alt="Access Management Icon">
+                    <h3>Access Management</h3>
+                    <p>Handle access requests and permissions.</p>
+                </div>
+            </div>
+        </div>
+        <div id="access-management" class="content">
+            <div class="image-container">
+                <div class="bordered-container">
+                    <img src="static/images/access_management.png" alt="Access Management Image" class="bordered-image">
+                </div>
+                <h1>ACCESS MANAGEMENT</h1>
+            </div>
+            <div class="access-tabs">
+                <button class="access-tab-button active" data-tab="request-access">Request Building/Room Access</button>
+                <button class="access-tab-button" data-tab="grant-access">Grant Access</button>
+                <button class="access-tab-button" data-tab="your-requests">Your Requests</button> 
+                <button class="access-tab-button" data-tab="building-tenants">Building Tenants</button>
+            </div>
+            <div id="request-access" class="access-tab-content active">
+                <div class="search-container">
+                    <input type="text" id="accessBuildingSearch" placeholder="Search buildings" class="search-input">
+                    <button id="accessBuildingSearchBtn" class="search-button">
+                        <img src="{{ url_for('static', filename='images/search.png') }}" alt="search">
+                    </button>
+                </div>
+                <div class="buildings-grid" id="accessBuildingsList">
+                    <div class="loading-indicator">Loading buildings...</div>
+                </div>
+            </div>
+            <div id="grant-access" class="access-tab-content">
+                <h3>Pending Access Requests</h3>
+                <div class="pending-requests-container" id="pendingRequestsList">
+                    <div class="loading-indicator">Loading pending requests...</div>
+                </div>
+            </div>
+            <div id="your-requests" class="access-tab-content">
+                <h3>Your Access Requests</h3>
+                <ul class="access-requests-list" id="accessRequestsList">
+                    <div class="loading-indicator">Loading your requests...</div>
+                </ul>
+            </div>
+<div id="building-tenants" class="access-tab-content">
+    <h3>Building Tenants</h3>
+    <div class="view-toggle-container">
+        <label class="switch">
+            <input type="checkbox" id="viewToggle">
+            <span class="slider round"></span>
+        </label>
+        <span id="viewTypeLabel">Tenant View</span>
+    </div>
+    <div class="search-container">
+        <input type="text" id="tenantSearchInput" placeholder="Search tenants or buildings" class="search-input">
+        <button id="tenantSearchBtn" class="search-button">
+            <img src="{{ url_for('static', filename='images/search.png') }}" alt="search">
+        </button>
+    </div>
+    <div id="tenantView" class="tenant-view active">
+        <div class="loading-indicator">Loading tenants...</div>
+        <div id="tenantsListContainer" class="tenants-list-container">
+        </div>
+    </div>
+    <div id="buildingView" class="building-view">
+        <div class="loading-indicator">Loading buildings...</div>
+        <div id="buildingTenantsContainer" class="building-tenants-container">
+        </div>
+    </div>
+</div>
+        </div>
+        <div id="buildings" class="content">
+            <div class="image-container">
+                <div class="bordered-container">
+                    <img src="static/images/building.png" alt="Buildings Image" class="bordered-image">
+                </div>
+                <h1>BUILDINGS </h1>
+            </div>
+            <ul id="buildingList"></ul>
+            <div class="building-container">
+                <button class="building-button" id="openModalBtn">
+                    <span class="button-text">+ New Building</span>
+                </button>
+            </div>            
+        </div>
+        <div id="rooms" class="content">
+            <div class="image-container">
+                <div class="bordered-container">
+                    <img src="static/images/rooms.png" alt="Rooms Image" class="bordered-image">
+                </div>
+                <h1>ROOMS</h1>
+            </div>
+            <div class="building-cards-container">
+                <div id="buildingCardsLoading" class="loading-indicator">Loading buildings and rooms...</div>
+                <div id="buildingCards" class="building-cards"></div>
+            </div>
+            <div id="roomEditModal" class="modal">
+                <div class="modal-content">
+                    <h2>Edit Room Details</h2>
+                    <form id="roomEditForm">
+                        <input type="hidden" id="editRoomId">
+                        <div class="form-group">
+                            <label for="editRoomName">Room Name:</label>
+                            <input type="text" id="editRoomName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRoomType">Room Type:</label>
+                            <input type="text" id="editRoomType">
+                        </div>
+                        <div class="form-group">
+                            <label for="editRoomDescription">Description:</label>
+                            <textarea id="editRoomDescription" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editOwner">Owner/Department:</label>
+                            <input type="text" id="editOwner">
+                        </div>
+                        <div class="form-group">
+                            <label for="editEmail">Email Contact:</label>
+                            <input type="email" id="editEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="editPhone">Phone Contact:</label>
+                            <input type="tel" id="editPhone">
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" id="closeRoomEditModal">
+                                <img src="static/images/cancel.png" alt="Cancel">
+                            </button>
+                            <button type="submit">
+                                <img src="{{ url_for('static', filename='images/save_green.png') }}" alt="save" class="button-icon">
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script></script>
+    <script src="{{ url_for('static', filename='floor-plan-models.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api-models.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/homepage.js') }}"></script>
+</body>
+</html>
